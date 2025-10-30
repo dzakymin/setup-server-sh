@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Provisioning script for kubernetes"
+echo "Provisioning script for kubernetes...."
 
 if docker --version &> /dev/null; then
 	echo "docker sudah terinstall"
@@ -76,5 +76,19 @@ else
 		echo "error occured"
 	fi
 fi
+systemctl restart k3s
+
+echo "export config"
+mkdir ~/.kube
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config.yaml
+chown -R $USER:$USER ~/.kube/
+chmod -R 755 ~/.kube/config.yaml
+exporter=export KUBECONFIG=~/.kube/config.yaml
+read -p "masukan home directory biasa anda : " dirhome
+echo "$exporter" >> $dirhome/.bashrc
+sleep 35
+if ! kubectl get node &> /dev/null; then
+	echo "terdapat error pada k3s anda"
 
 
+echo "Provisioning end..."
