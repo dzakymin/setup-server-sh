@@ -79,16 +79,23 @@ fi
 systemctl restart k3s
 
 echo "export config"
-mkdir ~/.kube
-cp /etc/rancher/k3s/k3s.yaml ~/.kube/config.yaml
-chown -R $USER:$USER ~/.kube/
-chmod -R 755 ~/.kube/config.yaml
-exporter=export KUBECONFIG=~/.kube/config.yaml
 read -p "masukan home directory biasa anda : " dirhome
-echo "$exporter" >> $dirhome/.bashrc
+if [ ! -d "$dirhome/.kube" ]; then
+	mkdir $dirhome/.kube
+fi
+cp /etc/rancher/k3s/k3s.yaml $dirhome/.kube/config.yaml
+chown -R $USER:$USER $dirhome/.kube/
+chmod -R 755 $dirhome/.kube/config.yaml
+exporter="export KUBECONFIG=$dirhome/.kube/config.yaml"
+if ! cat $dirhome/.bashrc | grep  "$exporter"; then
+	echo "$exporter" >> $dirhome/.bashrc
+else
+	echo "sudah ada skip"
+fi
+source $dirhome/.bashrc
 sleep 35
 if ! kubectl get node &> /dev/null; then
 	echo "terdapat error pada k3s anda"
 
-
+fi
 echo "Provisioning end..."
