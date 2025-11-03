@@ -12,8 +12,8 @@ echo "[+]Enabling iscsi_tcp for kernel longhorn purposes...."
 sudo modprobe iscsi_tcp
 
 echo "[+]Enabling iscsi service...."
-sudo systemctl enable iscsi.service
-sudo systemctl start iscsi.service
+#sudo systemctl enable iscsi.service
+#sudo systemctl start iscsi.service
 
 echo "[+]Installing nfs-common...."
 sudo apt install nfs-common -y
@@ -27,3 +27,4 @@ if sudo systemctl stop multipath multipathd.service; then
 else
 	echo "shutdown your multipath"
 
+fi

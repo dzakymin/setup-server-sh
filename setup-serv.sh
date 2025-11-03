@@ -65,10 +65,50 @@ else
 	if [ "$role" = "cp" ]; then
 	 	export K3S_TOKEN=$k3stoken
 		curl -sfL https://get.k3s.io | sh -s - server --disable traefik --disable servicelb --disable local.storage --docker --cluster-init
+		echo "export config"
+		read -p "masukan home directory biasa anda : " dirhome
+		if [ ! -d "$dirhome/.kube" ]; then
+			mkdir $dirhome/.kube
+		fi
+		cp /etc/rancher/k3s/k3s.yaml $dirhome/.kube/config.yaml
+		chown -R $USER:$USER $dirhome/.kube/
+		chmod -R 755 $dirhome/.kube/config.yaml
+		exporter="export KUBECONFIG=$dirhome/.kube/config.yaml"
+		if ! cat $dirhome/.bashrc | grep  "$exporter"; then
+			echo "$exporter" >> $dirhome/.bashrc
+		else
+			echo "sudah ada skip"
+		fi
+		source $dirhome/.bashrc
+		sleep 35
+		if ! kubectl get node &> /dev/null; then
+			echo "terdapat error pada k3s anda"
+
+		fi
 	elif [ "$role" = "cp-sec" ]; then
 		read -p "Masukan ip server control plane utama : " cpnode1
 		export K3S_TOKEN=$k3stoken
 		curl -sfL https://get.k3s.io | sh -s - server --server https://$cpnode1:6443 --disable traefik --disable servicelb --disable local.storage --docker
+		echo "export config"
+		read -p "masukan home directory biasa anda : " dirhome
+		if [ ! -d "$dirhome/.kube" ]; then
+			mkdir $dirhome/.kube
+		fi
+		cp /etc/rancher/k3s/k3s.yaml $dirhome/.kube/config.yaml
+		chown -R $USER:$USER $dirhome/.kube/
+		chmod -R 755 $dirhome/.kube/config.yaml
+		exporter="export KUBECONFIG=$dirhome/.kube/config.yaml"
+		if ! cat $dirhome/.bashrc | grep  "$exporter"; then
+			echo "$exporter" >> $dirhome/.bashrc
+		else
+			echo "sudah ada skip"
+		fi
+		source $dirhome/.bashrc
+		sleep 35
+		if ! kubectl get node &> /dev/null; then
+			echo "terdapat error pada k3s anda"
+
+		fi
 	elif [ "$role" = "wk" ]; then
 		read -p "Masukan ip server control plane utama : " cpnode1
 		export K3S_TOKEN=$k3stoken
@@ -76,28 +116,6 @@ else
 	else
 		echo "error occured"
 	fi
-fi
-
-systemctl restart k3s
-echo "export config"
-read -p "masukan home directory biasa anda : " dirhome
-if [ ! -d "$dirhome/.kube" ]; then
-	mkdir $dirhome/.kube
-fi
-cp /etc/rancher/k3s/k3s.yaml $dirhome/.kube/config.yaml
-chown -R $USER:$USER $dirhome/.kube/
-chmod -R 755 $dirhome/.kube/config.yaml
-exporter="export KUBECONFIG=$dirhome/.kube/config.yaml"
-if ! cat $dirhome/.bashrc | grep  "$exporter"; then
-	echo "$exporter" >> $dirhome/.bashrc
-else
-	echo "sudah ada skip"
-fi
-source $dirhome/.bashrc
-sleep 35
-if ! kubectl get node &> /dev/null; then
-	echo "terdapat error pada k3s anda"
-
 fi
 
 echo "=====helm installation====="
